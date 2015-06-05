@@ -49,10 +49,34 @@ var keyDown = function(event) {
     // "V" pressed
     } else if(event.charCode === 118) {
         pasteTile();
+    // "S" pressed
+    } else if(event.charCode === 115) {
+        minusTile();
+    // "W" pressed
+    } else if(event.charCode === 119) {
+        plusTile();
     // Unbound key pressed
     } else {
         console.log("Unused key: " + event.charCode);
     }
+};
+
+// Minus tile
+function minusTile() {
+    mapTiles[selectedTile.row][selectedTile.column] -= 1;
+    if(mapTiles[selectedTile.row][selectedTile.column] < 0) {
+        mapTiles[selectedTile.row][selectedTile.column] = 27;
+    }
+    requestAnimationFrame(update);
+};
+
+// Plus tile
+function plusTile() {
+    mapTiles[selectedTile.row][selectedTile.column] += 1;
+    if(mapTiles[selectedTile.row][selectedTile.column] > 27) {
+        mapTiles[selectedTile.row][selectedTile.column] = 0;
+    }
+    requestAnimationFrame(update);
 };
 
 // Paste tile
