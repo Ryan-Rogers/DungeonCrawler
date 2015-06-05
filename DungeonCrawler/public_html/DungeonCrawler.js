@@ -9,6 +9,11 @@ var background;
 var square;
 var timeSinceLastFrame = 0;
 var mapObjects = [];
+var selectedTile = {
+        row: 0,
+        column: 0
+};
+var copiedTile = 0;
 var dungeonImages;
 var floorImages;
 var mapTiles = 
@@ -33,13 +38,56 @@ var mapTiles =
 
 var tileWidth = 0;
 
+// Key down
+var keyDown = function(event) {
+    // "Enter" pressed
+    if(event.charCode === 13) {
+        printMap();
+    // "C" pressed
+    } else if(event.charCode === 99) {
+        copyTile();
+    // "V" pressed
+    } else if(event.charCode === 118) {
+        pasteTile();
+    // Unbound key pressed
+    } else {
+        console.log("Unused key: " + event.charCode);
+    }
+};
+
+// Paste tile
+function pasteTile() {
+    mapTiles[selectedTile.row][selectedTile.column] = copiedTile;
+    requestAnimationFrame(update);
+};
+
+// Copy tile
+function copyTile() {
+    copiedTile = mapTiles[selectedTile.row][selectedTile.column];
+};
+
 // Mouse down
 var mouseDown = function(event) {
-    console.log("(" + event.x + ", " + event.y + ")");
-    mapTiles[Math.floor(event.y / tileWidth)]
-            [Math.floor(event.x / tileWidth)] += 1;
-    console.log(mapTiles[0]);
+    var previousSelectedTile = {
+        row: selectedTile.row,
+        column: selectedTile.column
+    };
+    selectedTile.row = Math.floor(event.y / tileWidth);
+    selectedTile.column = Math.floor(event.x / tileWidth);
+    if(selectedTile.column === previousSelectedTile.column
+            && selectedTile.row === previousSelectedTile.row) {
+        mapTiles[selectedTile.row][selectedTile.column] += 1;
+    }
     requestAnimationFrame(update);
+};
+
+// Prints the current mapTiles to the console
+function printMap() {
+    console.log("[");
+    for(row = 0; row < mapTiles.length; row++) {
+        console.log("[" + mapTiles[row] + "],");
+    }
+    console.log("]");
 };
 
 // Loads the tiles
@@ -56,6 +104,7 @@ function imageLoader() {
     }
 };
 
+// Takes the an image map number and returns an image
 function tileNum(num) {
     if(num < 13) {
         return dungeonImages[num];
@@ -110,6 +159,10 @@ var update = function() {
     if(timeSinceLastFrame > 0) {
         timeSinceLastFrame = 0;
         context.clearRect(0, 0, canvas.width, canvas.height);
+        context.fillStyle = "red";
+        context.fillRect((selectedTile.column * tileWidth) - (tileWidth * 0.05), 
+                (selectedTile.row * tileWidth) - (tileWidth * 0.05), 
+                tileWidth * 1.05, tileWidth * 1.05);
         context.fillStyle = "black";
         for(row = 0; row < 18; row++) {
             for(column = 0; column < 32; column++) {
@@ -174,5 +227,6 @@ window.onload = function() {
     imageLoader();
     
     // Mouse
-    canvas.addEventListener("mousedown", mouseDown, false);
+    canvas.addEventListener("mousedown", mouseDown);
+    window.addEventListener("keypress", keyDown);
 };
